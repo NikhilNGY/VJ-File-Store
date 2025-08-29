@@ -1,1 +1,24 @@
-gunicorn app:app & python3 bot.py
+import asyncio
+from pyrogram import Client
+from app import app  # FastAPI or Aiohttp
+
+bot = Client("bot")
+
+async def start_bot():
+    await bot.start()
+    await bot.idle()
+
+async def start_web():
+    import uvicorn
+    config = uvicorn.Config(app, host="0.0.0.0", port=8000)
+    server = uvicorn.Server(config)
+    await server.serve()
+
+async def main():
+    await asyncio.gather(
+        start_bot(),
+        start_web()
+    )
+
+if __name__ == "__main__":
+    asyncio.run(main())
