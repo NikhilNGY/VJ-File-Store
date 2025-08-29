@@ -1,16 +1,30 @@
-# Don't Remove Credit @VJ_Botz
-# Subscribe YouTube Channel For Amazing Bot @Tech_VJ
-# Ask Doubt on telegram @KingVJ01
+# --- Use a lightweight Python image ---
+FROM python:3.11-slim
 
-FROM python:3.10.8-slim-buster
+# --- Set environment variables ---
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-RUN apt update && apt upgrade -y
-RUN apt install git -y
-COPY requirements.txt /requirements.txt
+# --- Install system dependencies ---
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y git ffmpeg && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN cd /
-RUN pip3 install -U pip && pip3 install -U -r requirements.txt
-RUN mkdir /VJ-File-Store
-WORKDIR /VJ-File-Store
-COPY . /VJ-File-Store
-CMD ["python", "bot.py"]
+# --- Set working directory ---
+WORKDIR /app
+
+# --- Copy requirements and install dependencies ---
+COPY requirements.txt .
+RUN pip install --upgrade pip setuptools wheel
+RUN pip install --no-cache-dir -r requirements.txt
+
+# --- Copy project files ---
+COPY . .
+
+# --- Expose port for web server if using FastAPI/Flask ---
+EXPOSE 8080
+
+# --- Default command to run both bot and web server concurrently ---
+# Uses asyncio.run to start your async bot and web server in one process
+CMD ["python", "-m", "TechVJ.startup"]
