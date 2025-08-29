@@ -1,183 +1,117 @@
 # Don't Remove Credit @VJ_Botz
-# Subscribe YouTube Channel For Amazing Bot @Tech_VJ
+# Subscribe YouTube Channel For Amazing Bot @KR_Picture
 # Ask Doubt on telegram @KingVJ01
 
-import re
-from pyrogram import filters, Client, enums
-from pyrogram.errors.exceptions.bad_request_400 import ChannelInvalid, UsernameInvalid, UsernameNotModified
-from config import ADMINS, LOG_CHANNEL, PUBLIC_FILE_STORE, WEBSITE_URL, WEBSITE_URL_MODE
-from plugins.users_api import get_user, get_short_link
 import re
 import os
 import json
 import base64
+from pyrogram import Client, filters
+from pyrogram.errors import ChannelInvalid, UsernameInvalid, UsernameNotModified
+from config import ADMINS, LOG_CHANNEL, PUBLIC_FILE_STORE, WEBSITE_URL, WEBSITE_URL_MODE
+from plugins.users_api import get_user, get_short_link
 
-# Don't Remove Credit Tg - @VJ_Botz
-# Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
-# Ask Doubt on telegram @KingVJ01
-
+# ---------------------- Utility ---------------------- #
 async def allowed(_, __, message):
-    if PUBLIC_FILE_STORE:
-        return True
-    if message.from_user and message.from_user.id in ADMINS:
-        return True
-    return False
+    """Check if the user is allowed to use the bot."""
+    return PUBLIC_FILE_STORE or (message.from_user and message.from_user.id in ADMINS)
 
-# Don't Remove Credit Tg - @VJ_Botz
-# Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
-# Ask Doubt on telegram @KingVJ01
+async def generate_share_link(bot, message_id: int, prefix: str = "file_") -> str:
+    """Generate base64 encoded share link."""
+    string = f"{prefix}{message_id}"
+    return base64.urlsafe_b64encode(string.encode("ascii")).decode().strip("=")
 
+async def build_final_link(bot, user_id, encoded_id, is_batch=False):
+    """Build final share link, optionally shortened."""
+    username = (await bot.get_me()).username
+    user = await get_user(user_id)
+    prefix = "BATCH-" if is_batch else ""
+    
+    share_link = f"{WEBSITE_URL}?KR_Picture={prefix}{encoded_id}" if WEBSITE_URL_MODE else f"https://t.me/{username}?start={prefix}{encoded_id}"
+    
+    if user.get("base_site") and user.get("shortener_api"):
+        try:
+            short_link = await get_short_link(user, share_link)
+            return short_link
+        except Exception:
+            return share_link
+    return share_link
+
+# ---------------------- Single File Link ---------------------- #
 @Client.on_message((filters.document | filters.video | filters.audio) & filters.private & filters.create(allowed))
 async def incoming_gen_link(bot, message):
-    username = (await bot.get_me()).username
-    file_type = message.media
     post = await message.copy(LOG_CHANNEL)
-    file_id = str(post.id)
-    string = 'file_'
-    string += file_id
-    outstr = base64.urlsafe_b64encode(string.encode("ascii")).decode().strip("=")
+    encoded_id = await generate_share_link(bot, post.id)
     user_id = message.from_user.id
-    user = await get_user(user_id)
-    if WEBSITE_URL_MODE == True:
-        share_link = f"{WEBSITE_URL}?Tech_VJ={outstr}"
-    else:
-        share_link = f"https://t.me/{username}?start={outstr}"
-    if user["base_site"] and user["shortener_api"] != None:
-        short_link = await get_short_link(user, share_link)
-        await message.reply(f"<b>⭕ ʜᴇʀᴇ ɪs ʏᴏᴜʀ ʟɪɴᴋ:\n\n🖇️ sʜᴏʀᴛ ʟɪɴᴋ :- {short_link}</b>")
-    else:
-        await message.reply(f"<b>⭕ ʜᴇʀᴇ ɪs ʏᴏᴜʀ ʟɪɴᴋ:\n\n🔗 ᴏʀɪɢɪɴᴀʟ ʟɪɴᴋ :- {share_link}</b>")
-        
+    final_link = await build_final_link(bot, user_id, encoded_id)
+    
+    await message.reply(f"<b>⭕ Here is your link:\n\n🔗 {final_link}</b>")
 
 @Client.on_message(filters.command(['link']) & filters.create(allowed))
-async def gen_link_s(bot, message):
-    username = (await bot.get_me()).username
-    replied = message.reply_to_message
-    if not replied:
-        return await message.reply('Reply to a message to get a shareable link.')
-# Don't Remove Credit Tg - @VJ_Botz
-# Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
-# Ask Doubt on telegram @KingVJ01
+async def gen_link_reply(bot, message):
+    if not message.reply_to_message:
+        return await message.reply("Reply to a message to get a shareable link.")
     
-    post = await replied.copy(LOG_CHANNEL)
-    file_id = str(post.id)
-    string = f"file_"
-    string += file_id
-    outstr = base64.urlsafe_b64encode(string.encode("ascii")).decode().strip("=")
+    post = await message.reply_to_message.copy(LOG_CHANNEL)
+    encoded_id = await generate_share_link(bot, post.id)
     user_id = message.from_user.id
-    user = await get_user(user_id)
-    if WEBSITE_URL_MODE == True:
-        share_link = f"{WEBSITE_URL}?Tech_VJ={outstr}"
-    else:
-        share_link = f"https://t.me/{username}?start={outstr}"
-    if user["base_site"] and user["shortener_api"] != None:
-        short_link = await get_short_link(user, share_link)
-        await message.reply(f"<b>⭕ ʜᴇʀᴇ ɪs ʏᴏᴜʀ ʟɪɴᴋ:\n\n🖇️ sʜᴏʀᴛ ʟɪɴᴋ :- {short_link}</b>")
-    else:
-        await message.reply(f"<b>⭕ ʜᴇʀᴇ ɪs ʏᴏᴜʀ ʟɪɴᴋ:\n\n🔗 ᴏʀɪɢɪɴᴀʟ ʟɪɴᴋ :- {share_link}</b>")
-        
+    final_link = await build_final_link(bot, user_id, encoded_id)
+    
+    await message.reply(f"<b>⭕ Here is your link:\n\n🔗 {final_link}</b>")
 
-# Don't Remove Credit Tg - @VJ_Botz
-# Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
-# Ask Doubt on telegram @KingVJ01
-
+# ---------------------- Batch Mode ---------------------- #
 @Client.on_message(filters.command(['batch']) & filters.create(allowed))
 async def gen_link_batch(bot, message):
-    username = (await bot.get_me()).username
-    if " " not in message.text:
-        return await message.reply("Use correct format.\nExample /batch https://t.me/vj_botz/10 https://t.me/vj_botz/20.")
-    links = message.text.strip().split(" ")
-    if len(links) != 3:
-        return await message.reply("Use correct format.\nExample /batch https://t.me/vj_botz/10 https://t.me/vj_botz/20.")
-    cmd, first, last = links
-    regex = re.compile("(https://)?(t\.me/|telegram\.me/|telegram\.dog/)(c/)?(\d+|[a-zA-Z_0-9]+)/(\d+)$")
-    match = regex.match(first)
-    if not match:
-        return await message.reply('Invalid link')
-    f_chat_id = match.group(4)
-    f_msg_id = int(match.group(5))
-    if f_chat_id.isnumeric():
-        f_chat_id = int(("-100" + f_chat_id))
-
-# Don't Remove Credit Tg - @VJ_Botz
-# Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
-# Ask Doubt on telegram @KingVJ01
+    text = message.text.strip().split()
+    if len(text) != 3:
+        return await message.reply("Use correct format.\nExample: /batch https://t.me/channel/10 https://t.me/channel/20")
     
-    match = regex.match(last)
-    if not match:
-        return await message.reply('Invalid link')
-    l_chat_id = match.group(4)
-    l_msg_id = int(match.group(5))
-    if l_chat_id.isnumeric():
-        l_chat_id = int(("-100" + l_chat_id))
-
-    if f_chat_id != l_chat_id:
-        return await message.reply("Chat ids not matched.")
+    _, first, last = text
+    regex = re.compile(r"(https://)?(t\.me/|telegram\.me/|telegram\.dog/)(c/)?(\d+|[\w_]+)/(\d+)$")
+    
+    def parse_link(link):
+        match = regex.match(link)
+        if not match:
+            return None, None
+        chat_id, msg_id = match.group(4), int(match.group(5))
+        if chat_id.isnumeric():
+            chat_id = int("-100" + chat_id)
+        return chat_id, msg_id
+    
+    f_chat_id, f_msg_id = parse_link(first)
+    l_chat_id, l_msg_id = parse_link(last)
+    if None in [f_chat_id, l_chat_id] or f_chat_id != l_chat_id:
+        return await message.reply("Invalid or mismatched chat links.")
+    
     try:
-        chat_id = (await bot.get_chat(f_chat_id)).id
-    except ChannelInvalid:
-        return await message.reply('This may be a private channel / group. Make me an admin over there to index the files.')
-    except (UsernameInvalid, UsernameNotModified):
-        return await message.reply('Invalid Link specified.')
+        await bot.get_chat(f_chat_id)
+    except (ChannelInvalid, UsernameInvalid, UsernameNotModified):
+        return await message.reply("Cannot access the channel/group. Make sure I'm admin.")
     except Exception as e:
-        return await message.reply(f'Errors - {e}')
+        return await message.reply(f"Error: {e}")
 
-# Don't Remove Credit Tg - @VJ_Botz
-# Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
-# Ask Doubt on telegram @KingVJ01
-    
-    sts = await message.reply("**ɢᴇɴᴇʀᴀᴛɪɴɢ ʟɪɴᴋ ғᴏʀ ʏᴏᴜʀ ᴍᴇssᴀɢᴇ**.\n**ᴛʜɪs ᴍᴀʏ ᴛᴀᴋᴇ ᴛɪᴍᴇ ᴅᴇᴘᴇɴᴅɪɴɢ ᴜᴘᴏɴ ɴᴜᴍʙᴇʀ ᴏғ ᴍᴇssᴀɢᴇs**")
-
-    FRMT = "**ɢᴇɴᴇʀᴀᴛɪɴɢ ʟɪɴᴋ...**\n**ᴛᴏᴛᴀʟ ᴍᴇssᴀɢᴇs:** {total}\n**ᴅᴏɴᴇ:** {current}\n**ʀᴇᴍᴀɪɴɪɴɢ:** {rem}\n**sᴛᴀᴛᴜs:** {sts}"
-
+    sts = await message.reply("**Generating links. This may take a while...**")
     outlist = []
+    count = 0
 
-# Don't Remove Credit Tg - @VJ_Botz
-# Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
-# Ask Doubt on telegram @KingVJ01
-
-    # file store without db channel
-    og_msg = 0
-    tot = 0
     async for msg in bot.iter_messages(f_chat_id, l_msg_id, f_msg_id):
-        tot += 1
-        if og_msg % 20 == 0:
-            try:
-                await sts.edit(FRMT.format(total=l_msg_id-f_msg_id, current=tot, rem=((l_msg_id-f_msg_id) - tot), sts="Saving Messages"))
-            except:
-                pass
         if msg.empty or msg.service:
             continue
-        file = {
-            "channel_id": f_chat_id,
-            "msg_id": msg.id
-        }
-        og_msg +=1
-        outlist.append(file)
-
-# Don't Remove Credit Tg - @VJ_Botz
-# Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
-# Ask Doubt on telegram @KingVJ01
-
-    with open(f"batchmode_{message.from_user.id}.json", "w+") as out:
-        json.dump(outlist, out)
-    post = await bot.send_document(LOG_CHANNEL, f"batchmode_{message.from_user.id}.json", file_name="Batch.json", caption="⚠️ Batch Generated For Filestore.")
-    os.remove(f"batchmode_{message.from_user.id}.json")
-    string = str(post.id)
-    file_id = base64.urlsafe_b64encode(string.encode("ascii")).decode().strip("=")
-    user_id = message.from_user.id
-    user = await get_user(user_id)
-    if WEBSITE_URL_MODE == True:
-        share_link = f"{WEBSITE_URL}?Tech_VJ=BATCH-{file_id}"
-    else:
-        share_link = f"https://t.me/{username}?start=BATCH-{file_id}"
-    if user["base_site"] and user["shortener_api"] != None:
-        short_link = await get_short_link(user, share_link)
-        await sts.edit(f"<b>⭕ ʜᴇʀᴇ ɪs ʏᴏᴜʀ ʟɪɴᴋ:\n\nContains `{og_msg}` files.\n\n🖇️ sʜᴏʀᴛ ʟɪɴᴋ :- {short_link}</b>")
-    else:
-        await sts.edit(f"<b>⭕ ʜᴇʀᴇ ɪs ʏᴏᴜʀ ʟɪɴᴋ:\n\nContains `{og_msg}` files.\n\n🔗 ᴏʀɪɢɪɴᴀʟ ʟɪɴᴋ :- {share_link}</b>")
-        
-# Don't Remove Credit Tg - @VJ_Botz
-# Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
-# Ask Doubt on telegram @KingVJ01
-
+        outlist.append({"channel_id": f_chat_id, "msg_id": msg.id})
+        count += 1
+        if count % 20 == 0:
+            try:
+                await sts.edit(f"Processed {count} messages...")
+            except:
+                pass
+    
+    filename = f"batch_{message.from_user.id}.json"
+    with open(filename, "w+") as f:
+        json.dump(outlist, f)
+    
+    post = await bot.send_document(LOG_CHANNEL, filename, file_name="Batch.json", caption="⚠️ Batch Generated for Filestore.")
+    os.remove(filename)
+    
+    encoded_id = await generate_share_link(bot, post.id, prefix="BATCH-")
+    final_link = await build_final_link(bot, message.from_user.id, encoded_id, is_batch=True)
+    await sts.edit(f"<b>⭕ Here is your batch link:\n\nContains `{count}` files.\n\n🔗 {final_link}</b>")
