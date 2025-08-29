@@ -1,36 +1,57 @@
-import motor.motor_asyncio
-from config import DB_NAME, DB_URI
+# Don't Remove Credit Tg - @KR_Picture
+# Subscribe YouTube Channel For Amazing Bot https://youtube.com/@KR_Picture
+# Ask Doubt on telegram @KR_Picture
 
-class Database:
+import aiohttp
+from plugins.dbusers import db
+
+async def get_short_link(user: dict, link: str) -> str | None:
+    """
+    Generate a shortened URL using user's shortener API.
     
-    def __init__(self, uri, database_name):
-        self._client = motor.motor_asyncio.AsyncIOMotorClient(uri)
-        self.db = self._client[database_name]
-        self.col = self.db.users
+    :param user: dict containing 'shortener_api' and 'base_site'
+    :param link: original URL to shorten
+    :return: shortened URL if success else None
+    """
+    api_key = user.get("shortener_api")
+    base_site = user.get("base_site")
 
-    def new_user(self, id, name):
-        return dict(
-            id = id,
-            name = name,
-        )
+    if not api_key or not base_site:
+        return None
+
+    url = f"https://{base_site}/api?api={api_key}&url={link}"
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            if response.status == 200:
+                data = await response.json()
+                if data.get("status") == "success":
+                    return data.get("shortenedUrl")
+    return None
+
+async def get_user(user_id: int) -> dict:
+    """
+    Fetch a user from the database; create if not exists.
     
-    async def add_user(self, id, name):
-        user = self.new_user(id, name)
-        await self.col.insert_one(user)
-    
-    async def is_user_exist(self, id):
-        user = await self.col.find_one({'id':int(id)})
-        return bool(user)
+    :param user_id: Telegram user ID
+    :return: user dictionary
+    """
+    user_id = int(user_id)
+    user = await db.users_collection.find_one({"id": user_id})
 
-    async def total_users_count(self):
-        count = await self.col.count_documents({})
-        return count
-    
-    async def get_all_users(self):
-        return self.col.find({})
+    if not user:
+        new_user = {"id": user_id, "shortener_api": None, "base_site": None, "name": None}
+        await db.users_collection.insert_one(new_user)
+        user = new_user
 
-    async def delete_user(self, user_id):
-        await self.col.delete_many({'id': int(user_id)})
+    return user
 
+async def update_user_info(user_id: int, values: dict) -> None:
+    """
+    Update user information in the database.
 
-db = Database(DB_URI, DB_NAME)
+    :param user_id: Telegram user ID
+    :param values: dictionary with fields to update
+    """
+    user_id = int(user_id)
+    await db.users_collection.update_one({"id": user_id}, {"$set": values})
