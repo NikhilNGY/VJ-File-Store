@@ -1,10 +1,9 @@
+from typing import Union, AsyncGenerator
+import asyncio
+import logging
 from pyrogram import Client, types
-from config import *
-from typing import Union, Optional, AsyncGenerator
-from aiohttp import web
 
 class StreamXBot(Client):
-
     def __init__(self):
         super().__init__(
             name="vjfiletolink",
@@ -15,46 +14,48 @@ class StreamXBot(Client):
             plugins={"root": "plugins"},
             sleep_threshold=5,
         )
+
     async def iter_messages(
         self,
         chat_id: Union[int, str],
         limit: int,
         offset: int = 0,
-    ) -> Optional[AsyncGenerator["types.Message", None]]:
-        """Iterate through a chat sequentially.
-        This convenience method does the same as repeatedly calling :meth:`~pyrogram.Client.get_messages` in a loop, thus saving
-        you from the hassle of setting up boilerplate code. It is useful for getting the whole chat messages with a
-        single call.
-        Parameters:
-            chat_id (``int`` | ``str``):
-                Unique identifier (int) or username (str) of the target chat.
-                For your personal cloud (Saved Messages) you can simply use "me" or "self".
-                For a contact that exists in your Telegram address book you can use his phone number (str).
-                
-            limit (``int``):
-                Identifier of the last message to be returned.
-                
-            offset (``int``, *optional*):
-                Identifier of the first message to be returned.
-                Defaults to 0.
-        Returns:
-            ``Generator``: A generator yielding :obj:`~pyrogram.types.Message` objects.
-        Example:
-            .. code-block:: python
-                for message in app.iter_messages("pyrogram", 1, 15000):
-                    print(message.text)
+        batch_size: int = 200,
+        cancel_event: asyncio.Event | None = None,
+    ) -> AsyncGenerator[types.Message, None]:
+        """
+        Async generator to iterate through messages sequentially with batching
+        and optional cancellation support.
+
+        Args:
+            chat_id (int | str): Target chat ID or username.
+            limit (int): Total number of messages to retrieve.
+            offset (int, optional): Starting message index. Defaults to 0.
+            batch_size (int, optional): Number of messages per batch. Defaults to 200.
+            cancel_event (asyncio.Event, optional): Event to cancel iteration. Defaults to None.
+
+        Yields:
+            types.Message: Telegram message object.
         """
         current = offset
-        while True:
-            new_diff = min(200, limit - current)
-            if new_diff <= 0:
-                return
-            messages = await self.get_messages(chat_id, list(range(current, current+new_diff+1)))
+
+        while current < limit:
+            if cancel_event and cancel_event.is_set():
+                logging.info("Message iteration cancelled")
+                break
+
+            current_batch_size = min(batch_size, limit - current)
+            if current_batch_size <= 0:
+                break
+
+            try:
+                messages = await self.get_messages(
+                    chat_id, list(range(current, current + current_batch_size))
+                )
+            except Exception as e:
+                logging.error(f"Error fetching messages: {e}")
+                break
+
             for message in messages:
                 yield message
                 current += 1
-      
-StreamBot = StreamXBot()
-
-multi_clients = {}
-work_loads = {}
