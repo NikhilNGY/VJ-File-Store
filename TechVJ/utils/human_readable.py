@@ -1,12 +1,22 @@
-def humanbytes(size):
-    # https://stackoverflow.com/a/49361727/4723940
-    # 2**10 = 1024
+async def humanbytes(size: int | float) -> str:
+    """
+    Convert bytes to a human-readable format (KiB, MiB, GiB, TiB).
+
+    Args:
+        size (int | float): Size in bytes.
+
+    Returns:
+        str: Human-readable size string.
+    """
     if not size:
-        return ""
-    power = 2**10
+        return "0 B"
+
+    power = 1024
     n = 0
-    Dic_powerN = {0: ' ', 1: 'Ki', 2: 'Mi', 3: 'Gi', 4: 'Ti'}
-    while size > power:
+    suffixes = ["B", "KiB", "MiB", "GiB", "TiB"]
+
+    while size >= power and n < len(suffixes) - 1:
         size /= power
         n += 1
-    return str(round(size, 2)) + " " + Dic_powerN[n] + 'B'
+
+    return f"{size:.2f} {suffixes[n]}"
