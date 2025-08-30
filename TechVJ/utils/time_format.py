@@ -1,6 +1,6 @@
 import asyncio
 
-async def get_readable_time_async(seconds: int) -> str:
+async def get_readable_time(seconds: int) -> str:
     """
     Convert seconds into a human-readable string asynchronously.
     Example: 93784 -> "1 days: 2h: 3m: 4s"
