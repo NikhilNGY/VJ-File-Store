@@ -1,7 +1,6 @@
-from typing import Union, AsyncGenerator
-import asyncio
-import logging
 from pyrogram import Client, types
+from config import API_ID, API_HASH, BOT_TOKEN
+from typing import Union, Optional, AsyncGenerator
 
 class StreamXBot(Client):
     def __init__(self):
@@ -20,42 +19,18 @@ class StreamXBot(Client):
         chat_id: Union[int, str],
         limit: int,
         offset: int = 0,
-        batch_size: int = 200,
-        cancel_event: asyncio.Event | None = None,
-    ) -> AsyncGenerator[types.Message, None]:
-        """
-        Async generator to iterate through messages sequentially with batching
-        and optional cancellation support.
-
-        Args:
-            chat_id (int | str): Target chat ID or username.
-            limit (int): Total number of messages to retrieve.
-            offset (int, optional): Starting message index. Defaults to 0.
-            batch_size (int, optional): Number of messages per batch. Defaults to 200.
-            cancel_event (asyncio.Event, optional): Event to cancel iteration. Defaults to None.
-
-        Yields:
-            types.Message: Telegram message object.
-        """
+    ) -> Optional[AsyncGenerator["types.Message", None]]:
         current = offset
-
-        while current < limit:
-            if cancel_event and cancel_event.is_set():
-                logging.info("Message iteration cancelled")
-                break
-
-            current_batch_size = min(batch_size, limit - current)
-            if current_batch_size <= 0:
-                break
-
-            try:
-                messages = await self.get_messages(
-                    chat_id, list(range(current, current + current_batch_size))
-                )
-            except Exception as e:
-                logging.error(f"Error fetching messages: {e}")
-                break
-
+        while True:
+            new_diff = min(200, limit - current)
+            if new_diff <= 0:
+                return
+            messages = await self.get_messages(chat_id, list(range(current, current + new_diff + 1)))
             for message in messages:
                 yield message
                 current += 1
+
+# ✅ Initialize global bot and dictionaries
+StreamBot = StreamXBot()
+multi_clients: dict[int, StreamXBot] = {0: StreamBot}
+work_loads: dict[int, int] = {0: 0}
