@@ -1,23 +1,11 @@
-# TechVJ/start.py
 import asyncio
-from aiohttp import web
-from TechVJ.server import web_server
-import logging
-
-logging.basicConfig(level=logging.INFO)
+from TechVJ.bot import StreamBot, multi_clients, work_loads
 
 async def main():
-    app = await web_server.web_server()
-    runner = web.AppRunner(app)
-    await runner.setup()
-    site = web.TCPSite(runner, '0.0.0.0', 8080)
-    print("Server started on http://0.0.0.0:8080")
-    await site.start()
-    
-    # Keep running
-    while True:
-        await asyncio.sleep(3600)
+    # Initialize and start your bot
+    await multi_clients.start()
+    await work_loads.start()
+    await StreamBot.run()
 
 if __name__ == "__main__":
-    # Start Flask server
-    web_server.run(host="0.0.0.0", port=8080)
+    asyncio.run(main())
