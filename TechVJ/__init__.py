@@ -1,10 +1,11 @@
 import time
 import asyncio
+from datetime import datetime
 
-# Start time of the bot
-START_TIME = time.time()
+# Application start time
+StartTime = datetime.utcnow()
 
-# Current version of the bot
+# Application version
 __version__ = "1.0.0"
 
 
