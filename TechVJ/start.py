@@ -19,4 +19,5 @@ async def main():
         await asyncio.sleep(3600)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    # Start Flask server
+    web_server.run(host="0.0.0.0", port=8080)
