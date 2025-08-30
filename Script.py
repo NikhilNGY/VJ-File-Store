@@ -2,6 +2,7 @@
 # Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
 # Ask Doubt on telegram @KingVJ01
 
+from Script import Script 
 from datetime import datetime
 from typing import Optional
 
@@ -79,3 +80,4 @@ class Script:
     def format_restart(cls, dt: Optional[datetime] = None) -> str:
         dt = dt or datetime.now()
         return cls.RESTART_TXT.format(date=dt.date(), time=dt.strftime("%H:%M:%S %p"))
+
