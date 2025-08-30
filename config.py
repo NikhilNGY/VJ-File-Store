@@ -26,14 +26,14 @@ id_pattern = re.compile(r'^\d+$')
 # -------------------------------
 # Bot Information
 # -------------------------------
-API_ID = int(os.environ.get("API_ID", 0))
-API_HASH = os.environ.get("API_HASH", "")
+API_ID = int(os.environ.get("API_ID", "2468192:))
+API_HASH = os.environ.get("API_HASH", "4906b3f8f198ec0e24edb2c197677678")
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
-BOT_USERNAME = os.environ.get("BOT_USERNAME", "")  # without @
+BOT_USERNAME = os.environ.get("BOT_USERNAME", "File_StoreRobot")  # without @
 PORT = int(os.environ.get("PORT", 8080))
 
-PICS = os.environ.get('PICS', 'https://graph.org/file/ce1723991756e48c35aa1.jpg').split()
-ADMINS = [int(admin) if id_pattern.search(admin) else admin for admin in os.environ.get('ADMINS', '').split()]
+PICS = os.environ.get('PICS', 'https://telegra.ph/file/4466d37d43f5703516f74.jpg').split()
+ADMINS = [int(admin) if id_pattern.search(admin) else admin for admin in os.environ.get('ADMINS', '2098589219').split()]
 
 # -------------------------------
 # Clone Mode
@@ -45,8 +45,8 @@ CDB_NAME = os.environ.get("CDB_NAME", "clonetechvj")
 # -------------------------------
 # Database Information
 # -------------------------------
-DB_URI = os.environ.get("DB_URI", "")
-DB_NAME = os.environ.get("DB_NAME", "techvjbotz")
+DB_URI = os.environ.get("DB_URI", "mongodb+srv://Filter01:ei62heT4O81OyNyl@Filter01.6kyybcz.mongodb.net/?retryWrites=true&w=majority&appName=Filter01")
+DB_NAME = os.environ.get("DB_NAME", "Filter1")
 
 # -------------------------------
 # Auto Delete Information
@@ -58,14 +58,14 @@ AUTO_DELETE_TIME = int(os.environ.get("AUTO_DELETE_TIME", 1800))  # in seconds
 # -------------------------------
 # Channel / Logging Information
 # -------------------------------
-LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", 0))
+LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", "-1001683081282"))
 
 # -------------------------------
 # File Caption Information
 # -------------------------------
-CUSTOM_FILE_CAPTION = os.environ.get("CUSTOM_FILE_CAPTION", "Uploaded by @Tech_VJ")
+CUSTOM_FILE_CAPTION = os.environ.get("CUSTOM_FILE_CAPTION", "Uploaded by @KR_Picture")
 BATCH_FILE_CAPTION = os.environ.get("BATCH_FILE_CAPTION", CUSTOM_FILE_CAPTION)
-PUBLIC_FILE_STORE = is_enabled(os.environ.get('PUBLIC_FILE_STORE', "True"))
+PUBLIC_FILE_STORE = is_enabled(os.environ.get('PUBLIC_FILE_STORE', "False"))
 
 # -------------------------------
 # Verification Settings
@@ -78,8 +78,8 @@ VERIFY_TUTORIAL = os.environ.get("VERIFY_TUTORIAL", "")
 # -------------------------------
 # Website Info
 # -------------------------------
-WEBSITE_URL_MODE = is_enabled(os.environ.get('WEBSITE_URL_MODE', "False"))
-WEBSITE_URL = os.environ.get("WEBSITE_URL", "")
+WEBSITE_URL_MODE = is_enabled(os.environ.get('WEBSITE_URL_MODE', "True"))
+WEBSITE_URL = os.environ.get("WEBSITE_URL", "https://krpicture0.blogspot.com/2025/08/krpicture.html")
 
 # -------------------------------
 # Stream / Multi-Client Settings
