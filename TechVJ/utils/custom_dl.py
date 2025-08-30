@@ -13,20 +13,17 @@ from config import LOG_CHANNEL
 
 
 class ByteStreamer:
-    def __init__(self, client: Client, max_concurrent: int = 5, clean_interval: int = 1800):
-        """
-        Async-safe ByteStreamer using semaphore for workload management.
-        
-        Args:
-            client: Pyrogram Client instance.
-            max_concurrent: Maximum concurrent streaming per client.
-            clean_interval: Seconds between cache cleanup.
-        """
-        self.client: Client = client
-        self.clean_timer: int = clean_interval
-        self.cached_file_ids: Dict[int, FileId] = {}
-        self.semaphore = asyncio.Semaphore(max_concurrent)
-        asyncio.create_task(self._clean_cache())
+    def __init__(self, file_path):
+        self.file_path = file_path
+
+    def stream(self):
+        # Example streaming logic
+        try:
+            with open(self.file_path, "rb") as f:
+                while chunk := f.read(1024):
+                    yield chunk
+        except FileNotFound:
+            raise FileNotFound(f"File {self.file_path} not found")
 
     async def get_file_properties(self, message_id: int) -> FileId:
         """Return cached file properties or generate them if missing."""
