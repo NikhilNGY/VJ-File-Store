@@ -81,3 +81,6 @@ class Script:
         dt = dt or datetime.now()
         return cls.RESTART_TXT.format(date=dt.date(), time=dt.strftime("%H:%M:%S %p"))
 
+# This defines the script function
+def script():
+    return "Script is running"
