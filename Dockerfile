@@ -27,4 +27,4 @@ EXPOSE 8080
 
 # --- Default command to run both bot and web server concurrently ---
 # Uses asyncio.run to start your async bot and web server in one process
-CMD ["python", "-m", "TechVJ.startup"]
+CMD ["python", "-m", "TechVJ.start"]
