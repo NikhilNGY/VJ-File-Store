@@ -26,6 +26,22 @@ from TechVJ.bot import StreamBot
 from TechVJ.utils.keepalive import ping_server
 from TechVJ.bot.clients import initialize_clients
 
+# Correct relative import from Script.py
+from .Script import script
+
+class Bot:
+    def __init__(self):
+        self.name = "TechVJ Bot"
+
+    async def start(self):
+        print(f"{self.name} started")
+        await self.run_script()
+
+    async def run_script(self):
+        # Call the script function from Script.py
+        result = script()
+        print("Script output:", result)
+
 # -------------------------
 # Logging Configuration
 # -------------------------
