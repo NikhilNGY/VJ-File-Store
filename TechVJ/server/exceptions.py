@@ -12,11 +12,11 @@ class TechVJException(Exception):
         return self.message
 
 
-class InvalidHash(TechVJException):
+class InvalidHash(Exception):
     """Raised when a provided hash is invalid."""
     default_message = "Invalid hash"
 
 
-class FileNotFound(TechVJException):
+class FileNotFound(Exception):
     """Raised when a requested file is not found."""
     default_message = "File not found"
