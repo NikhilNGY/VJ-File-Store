@@ -5,7 +5,7 @@ import asyncio
 START_TIME = time.time()
 
 # Current version of the bot
-__version__ = "1.1"
+__version__ = "1.0.0"
 
 
 async def get_uptime() -> str:
