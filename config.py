@@ -26,7 +26,7 @@ id_pattern = re.compile(r'^\d+$')
 # -------------------------------
 # Bot Information
 # -------------------------------
-API_ID = int(os.environ.get("API_ID", "2468192:))
+API_ID = int(os.environ.get("API_ID", "2468192"))
 API_HASH = os.environ.get("API_HASH", "4906b3f8f198ec0e24edb2c197677678")
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
 BOT_USERNAME = os.environ.get("BOT_USERNAME", "File_StoreRobot")  # without @
