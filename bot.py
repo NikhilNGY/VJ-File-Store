@@ -19,7 +19,7 @@ from pyrogram.raw.all import layer
 from pyrogram import types
 
 from config import LOG_CHANNEL, ON_HEROKU, CLONE_MODE, PORT
-from script import script
+from TechVJ.Script import script
 from TechVJ.server import web_server
 from plugins.clone import restart_bots
 from TechVJ.bot import StreamBot
