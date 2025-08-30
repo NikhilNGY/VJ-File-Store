@@ -2,7 +2,7 @@
 # Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
 # Ask Doubt on telegram @KingVJ01
 
-from Script import Script 
+from TechVJ.Script import script 
 from datetime import datetime
 from typing import Optional
 
@@ -84,3 +84,4 @@ class Script:
 # This defines the script function
 def script():
     return "Script is running"
+
