@@ -19,15 +19,13 @@ from pyrogram.raw.all import layer
 from pyrogram import types
 
 from config import LOG_CHANNEL, ON_HEROKU, CLONE_MODE, PORT
-from Script import script
+from .Script import script
 from TechVJ.server import web_server
 from plugins.clone import restart_bots
 from TechVJ.bot import StreamBot
 from TechVJ.utils.keepalive import ping_server
 from TechVJ.bot.clients import initialize_clients
 
-# Correct relative import from Script.py
-from .Script import script
 
 class Bot:
     def __init__(self):
