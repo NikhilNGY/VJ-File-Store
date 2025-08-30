@@ -1,3 +1,6 @@
+# Make Bot and script accessible when importing bot package
+from .Bot import Bot
+from .Script import script
 from pyrogram import Client, types
 from config import API_ID, API_HASH, BOT_TOKEN
 from typing import Union, Optional, AsyncGenerator
