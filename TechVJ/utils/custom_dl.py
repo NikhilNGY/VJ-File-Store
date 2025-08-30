@@ -6,7 +6,7 @@ from pyrogram import Client, utils, raw
 from pyrogram.file_id import FileId, FileType, ThumbnailSource
 from pyrogram.session import Session, Auth
 from pyrogram.errors import AuthBytesInvalid
-from TechVJ.server.exceptions import FIleNotFound
+from TechVJ.server.exceptions import FileNotFound
 from TechVJ.bot import work_loads
 from .file_properties import get_file_ids
 from config import LOG_CHANNEL
