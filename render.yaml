@@ -1,6 +1,6 @@
 services:
   - type: worker
-    name: Filestoree
+    name: VJ-File-Store
     env: python:3.11        # Modern Python version
     plan: free               # Free plan
     buildCommand: |
