@@ -1,7 +1,7 @@
 # TechVJ/start.py
 import asyncio
 from aiohttp import web
-from .server import web_server
+from TechVJ.server import web_server
 import logging
 
 logging.basicConfig(level=logging.INFO)
